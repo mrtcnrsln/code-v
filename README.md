@@ -1,4 +1,4 @@
-# ⬡ CodeV v2 — Collaborative Code Editor
+# ⬡ CodeV v14 — Collaborative Code Editor
 
 Gerçek zamanlı, tarayıcı tabanlı ekip kod editörü.  
 P2P host modu veya Enterprise server olarak çalışır.
