@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  codev:
+    build: .
+    ports:
+      - "${PORT:-3030}:3030"
+    volumes:
+      - ./workspace:/workspace
+      - codev-data:/app/data
+    environment:
+      - PORT=3030
+      - WORKSPACE=/workspace
+      - JWT_SECRET=${JWT_SECRET:-changeme_use_random_string}
+      - AUTH_ENABLED=${AUTH_ENABLED:-false}
+      - ROOM_PASSWORD=${ROOM_PASSWORD:-}
+      - SERVER_NAME=${SERVER_NAME:-CodeV}
+    restart: unless-stopped
+
+  # Optional: nginx reverse proxy for HTTPS
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - codev
+    profiles:
+      - production
+
+volumes:
+  codev-data:

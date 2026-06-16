@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeV Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg0:#0d0f14;--bg1:#12151c;--bg2:#181b24;--bg3:#1e222e;--bg4:#252a38;
+  --border:#252d3d;--border2:#2f3a50;
+  --text0:#e8eaf0;--text1:#a8b0c8;--text2:#5a6480;
+  --accent:#5b8af5;--green:#4ade80;--red:#f87171;--yellow:#fbbf24;--purple:#a78bfa;
+  --font-mono:'JetBrains Mono',monospace;--font-ui:'Inter',sans-serif;
+  --radius:6px;
+}
+[data-theme="light"] {
+  --bg0:#fff;--bg1:#f5f5f5;--bg2:#eee;--bg3:#e5e5e5;--bg4:#d9d9d9;
+  --border:#d0d0d0;--border2:#bbb;
+  --text0:#1a1a1a;--text1:#444;--text2:#888;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg0);color:var(--text0);font-family:var(--font-ui);min-height:100vh;}
+a{color:var(--accent);text-decoration:none;}
+
+/* Header */
+.admin-header{background:var(--bg1);border-bottom:1px solid var(--border);padding:0 24px;height:52px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;}
+.admin-logo{font-family:var(--font-mono);font-size:16px;font-weight:600;color:var(--accent);}
+.admin-logo span{color:var(--text2);font-weight:300;}
+.admin-badge{background:var(--purple);color:#fff;font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;letter-spacing:.5px;}
+.header-right{margin-left:auto;display:flex;gap:8px;align-items:center;}
+
+/* Layout */
+.admin-layout{display:flex;min-height:calc(100vh - 52px);}
+.admin-nav{width:200px;background:var(--bg1);border-right:1px solid var(--border);padding:12px 8px;flex-shrink:0;}
+.nav-item{padding:8px 12px;border-radius:var(--radius);font-size:13px;cursor:pointer;color:var(--text1);display:flex;align-items:center;gap:8px;transition:all .12s;margin-bottom:2px;}
+.nav-item:hover{background:var(--bg3);color:var(--text0);}
+.nav-item.active{background:var(--bg4);color:var(--accent);}
+.nav-icon{font-size:14px;width:18px;text-align:center;}
+.nav-section{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--text2);padding:10px 12px 4px;margin-top:8px;}
+
+.admin-main{flex:1;padding:24px;overflow-y:auto;}
+.page{display:none;}
+.page.active{display:block;}
+
+/* Cards */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:16px;}
+.card-title{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);margin-bottom:14px;}
+
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px;}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px 18px;}
+.stat-value{font-size:28px;font-weight:600;font-family:var(--font-mono);color:var(--accent);line-height:1.1;}
+.stat-label{font-size:11px;color:var(--text2);margin-top:4px;text-transform:uppercase;letter-spacing:.5px;}
+.stat-sub{font-size:11px;color:var(--text1);margin-top:2px;}
+
+/* Table */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;padding:8px 12px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);border-bottom:1px solid var(--border);}
+td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text1);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--bg3);}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;letter-spacing:.3px;}
+.badge-admin{background:rgba(167,139,250,.15);color:var(--purple);}
+.badge-member{background:rgba(91,138,245,.1);color:var(--accent);}
+.badge-online{background:rgba(74,222,128,.12);color:var(--green);}
+
+/* Buttons */
+.btn{background:var(--bg3);border:1px solid var(--border);color:var(--text1);font-size:12px;font-family:var(--font-ui);padding:6px 12px;border-radius:var(--radius);cursor:pointer;transition:all .13s;display:inline-flex;align-items:center;gap:5px;}
+.btn:hover{background:var(--bg4);color:var(--text0);}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+.btn-primary:hover{filter:brightness(1.1);}
+.btn-danger{border-color:var(--red);color:var(--red);}
+.btn-danger:hover{background:rgba(248,113,113,.1);}
+.btn-sm{padding:4px 9px;font-size:11px;}
+
+/* Form */
+.form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+.form-label{font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+.form-input{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;font-size:13px;color:var(--text0);font-family:var(--font-ui);outline:none;transition:border-color .13s;width:100%;}
+.form-input:focus{border-color:var(--accent);}
+.form-row{display:flex;gap:10px;align-items:flex-end;}
+.form-row .form-group{flex:1;margin-bottom:0;}
+
+/* Metric bar */
+.metric-bar{background:var(--bg4);border-radius:3px;height:6px;overflow:hidden;margin-top:4px;}
+.metric-fill{height:100%;border-radius:3px;background:var(--accent);transition:width .4s;}
+.metric-fill.warn{background:var(--yellow);}
+.metric-fill.danger{background:var(--red);}
+
+/* Session item */
+.session-item{display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg3);border-radius:6px;margin-bottom:6px;}
+.session-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 5px var(--green);flex-shrink:0;}
+.session-info{flex:1;}
+.session-name{font-size:13px;color:var(--text0);}
+.session-meta{font-size:11px;color:var(--text2);font-family:var(--font-mono);}
+
+/* Toast */
+#toast{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:6px;}
+.toast-msg{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 14px;font-size:12px;animation:tIn .2s ease;max-width:280px;}
+.toast-msg.success{border-left:3px solid var(--green);}
+.toast-msg.error{border-left:3px solid var(--red);}
+@keyframes tIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
+
+/* Toggle */
+.toggle{position:relative;width:36px;height:20px;display:inline-block;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;inset:0;background:var(--bg4);border-radius:20px;cursor:pointer;transition:.2s;}
+.toggle-slider::before{content:'';position:absolute;width:14px;height:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s;}
+.toggle input:checked + .toggle-slider{background:var(--accent);}
+.toggle input:checked + .toggle-slider::before{transform:translateX(16px);}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
+.toggle-row:last-child{border-bottom:none;}
+.toggle-label{font-size:13px;color:var(--text1);}
+.toggle-desc{font-size:11px;color:var(--text2);margin-top:2px;}
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<!-- Login screen -->
+<div id="login-screen" style="min-height:100vh;display:flex;align-items:center;justify-content:center;">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:36px;width:340px;">
+    <div style="font-family:var(--font-mono);font-size:20px;font-weight:600;color:var(--accent);margin-bottom:4px;">⬡ CodeV Admin</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:20px;">Sign in with your admin account</div>
+    <div class="form-group"><label class="form-label">Username</label><input class="form-input" id="login-user" placeholder="admin"></div>
+    <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="login-pass" type="password" placeholder="••••••••"></div>
+    <button class="btn btn-primary" onclick="doLogin()" style="width:100%;justify-content:center;padding:10px;">Sign In →</button>
+    <div id="login-error" style="color:var(--red);font-size:12px;text-align:center;margin-top:10px;display:none;"></div>
+  </div>
+</div>
+
+<!-- Admin app -->
+<div id="admin-app" style="display:none;">
+<div class="admin-header">
+  <div class="admin-logo">⬡ Code<span>V</span></div>
+  <div class="admin-badge">ADMIN</div>
+  <div id="header-server-name" style="font-size:13px;color:var(--text2)"></div>
+  <div class="header-right">
+    <span id="header-uptime" style="font-size:11px;color:var(--text2);font-family:var(--font-mono)"></span>
+    <button class="btn btn-sm" onclick="window.location.href='/'">← Editor</button>
+    <button class="btn btn-sm" onclick="doLogout()">Sign out</button>
+  </div>
+</div>
+
+<div class="admin-layout">
+  <nav class="admin-nav">
+    <div class="nav-item active" onclick="showPage('overview')" id="nav-overview">
+      <span class="nav-icon">📊</span> Overview
+    </div>
+    <div class="nav-item" onclick="showPage('sessions')" id="nav-sessions">
+      <span class="nav-icon">🔌</span> Sessions
+    </div>
+    <div class="nav-section">Users</div>
+    <div class="nav-item" onclick="showPage('users')" id="nav-users">
+      <span class="nav-icon">👥</span> Users
+    </div>
+    <div class="nav-item" onclick="showPage('add-user')" id="nav-add-user">
+      <span class="nav-icon">➕</span> Add User
+    </div>
+    <div class="nav-section">Config</div>
+    <div class="nav-item" onclick="showPage('settings')" id="nav-settings">
+      <span class="nav-icon">⚙</span> Settings
+    </div>
+    <div class="nav-item" onclick="showPage('security')" id="nav-security">
+      <span class="nav-icon">🔐</span> Security
+    </div>
+    <div class="nav-item" onclick="showPage('ldap')" id="nav-ldap">
+      <span class="nav-icon">🗂</span> LDAP / AD
+    </div>
+  </nav>
+
+  <main class="admin-main">
+
+    <!-- OVERVIEW -->
+    <div class="page active" id="page-overview">
+      <h2 style="font-size:18px;margin-bottom:16px;">Overview</h2>
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card"><div class="stat-value" id="s-users">—</div><div class="stat-label">Users</div></div>
+        <div class="stat-card"><div class="stat-value" id="s-sessions">—</div><div class="stat-label">Active Sessions</div></div>
+        <div class="stat-card"><div class="stat-value" id="s-uptime">—</div><div class="stat-label">Uptime</div></div>
+        <div class="stat-card"><div class="stat-value" id="s-node">—</div><div class="stat-label">Node.js</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="card">
+          <div class="card-title">Memory</div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+            <span id="mem-used" style="color:var(--text0)">— MB used</span>
+            <span id="mem-total" style="color:var(--text2)">— MB total</span>
+          </div>
+          <div class="metric-bar"><div class="metric-fill" id="mem-bar" style="width:0%"></div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">System</div>
+          <div id="sys-info" style="font-size:12px;color:var(--text1);line-height:1.9;font-family:var(--font-mono)"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">CPU Load (1m / 5m / 15m)</div>
+        <div id="cpu-info" style="font-size:13px;color:var(--text1);font-family:var(--font-mono)"></div>
+      </div>
+    </div>
+
+    <!-- SESSIONS -->
+    <div class="page" id="page-sessions">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h2 style="font-size:18px;">Active Sessions</h2>
+        <button class="btn btn-sm" onclick="loadSessions()">↻ Refresh</button>
+      </div>
+      <div id="sessions-list"><div style="color:var(--text2);font-size:13px;">Loading...</div></div>
+    </div>
+
+    <!-- USERS -->
+    <div class="page" id="page-users">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h2 style="font-size:18px;">Users</h2>
+        <button class="btn btn-sm btn-primary" onclick="showPage('add-user')">+ Add User</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Username</th><th>Display Name</th><th>Role</th><th>Created</th><th>Actions</th></tr></thead>
+            <tbody id="users-tbody"><tr><td colspan="5" style="color:var(--text2)">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADD USER -->
+    <div class="page" id="page-add-user">
+      <h2 style="font-size:18px;margin-bottom:16px;">Add User</h2>
+      <div class="card" style="max-width:400px;">
+        <div class="form-group"><label class="form-label">Username</label><input class="form-input" id="new-username" placeholder="john_doe"></div>
+        <div class="form-group"><label class="form-label">Display Name</label><input class="form-input" id="new-displayname" placeholder="John Doe"></div>
+        <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="new-password" type="password" placeholder="Min 6 characters"></div>
+        <div class="form-group"><label class="form-label">Role</label>
+          <select class="form-input" id="new-role">
+            <option value="member">Member</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="addUser()">Create User</button>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <h2 style="font-size:18px;margin-bottom:16px;">Settings</h2>
+      <div class="card" style="max-width:500px;">
+        <div class="form-group"><label class="form-label">Server Name</label><input class="form-input" id="cfg-name" placeholder="My CodeV Server"></div>
+        <div class="toggle-row">
+          <div><div class="toggle-label">Allow Guest Access</div><div class="toggle-desc">Users can join without an account</div></div>
+          <label class="toggle"><input type="checkbox" id="cfg-guest"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div><div class="toggle-label">Require Authentication</div><div class="toggle-desc">All users must sign in</div></div>
+          <label class="toggle"><input type="checkbox" id="cfg-auth"><span class="toggle-slider"></span></label>
+        </div>
+        <div style="margin-top:14px;">
+          <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- LDAP -->
+    <div class="page" id="page-ldap">
+      <h2 style="font-size:18px;margin-bottom:16px;">LDAP / Active Directory</h2>
+      
+      <div class="card" style="max-width:600px;">
+        <div class="card-title" style="display:flex;justify-content:space-between;align-items:center">
+          LDAP Configuration
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-sm" onclick="testLDAP()">🔌 Test Connection</button>
+            <button class="btn btn-sm btn-primary" onclick="saveLDAP()">Save</button>
+          </div>
+        </div>
+
+        <div class="toggle-row">
+          <div><div class="toggle-label">Enable LDAP Authentication</div>
+            <div class="toggle-desc">Users can sign in with LDAP/AD credentials</div></div>
+          <label class="toggle"><input type="checkbox" id="ldap-enabled" onchange="toggleLDAPFields()"><span class="toggle-slider"></span></label>
+        </div>
+
+        <div id="ldap-fields" style="margin-top:16px;display:none">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="form-group" style="grid-column:1/-1">
+              <label class="form-label">Server URL</label>
+              <input class="form-input" id="ldap-url" placeholder="ldap://ldap.company.com:389  or  ldaps://...">
+            </div>
+            <div class="form-group" style="grid-column:1/-1">
+              <label class="form-label">Base DN</label>
+              <input class="form-input" id="ldap-basedn" placeholder="dc=company,dc=com">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Bind DN (service account)</label>
+              <input class="form-input" id="ldap-binddn" placeholder="cn=codev-svc,dc=company,dc=com">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Bind Password</label>
+              <input class="form-input" id="ldap-bindpw" type="password" placeholder="service account password">
+            </div>
+          </div>
+
+          <div style="margin-top:8px;padding:10px;background:var(--bg3);border-radius:var(--radius);font-size:11px;color:var(--text2)">
+            <b style="color:var(--text1)">Presets:</b>
+            <button class="btn btn-sm" style="margin:4px" onclick="applyPreset('ad')">Active Directory</button>
+            <button class="btn btn-sm" style="margin:4px" onclick="applyPreset('openldap')">OpenLDAP</button>
+            <button class="btn btn-sm" style="margin:4px" onclick="applyPreset('freeipa')">FreeIPA</button>
+            <button class="btn btn-sm" style="margin:4px" onclick="applyPreset('samba')">Samba 4</button>
+          </div>
+
+          <div class="form-group" style="margin-top:10px">
+            <label class="form-label">User Filter <span style="color:var(--text2);font-weight:400">({{username}} = login name)</span></label>
+            <input class="form-input" id="ldap-filter" placeholder="(sAMAccountName={{username}})">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Group Filter <span style="color:var(--text2);font-weight:400">(optional — restrict access to group)</span></label>
+            <input class="form-input" id="ldap-groupfilter" placeholder="(memberOf=cn=codev-users,ou=groups,dc=company,dc=com)">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Admin Group DN <span style="color:var(--text2);font-weight:400">(members get admin role)</span></label>
+            <input class="form-input" id="ldap-admingroup" placeholder="cn=codev-admins,ou=groups,dc=company,dc=com">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="form-group">
+              <label class="form-label">Display Name Attribute</label>
+              <input class="form-input" id="ldap-displayattr" placeholder="displayName">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email Attribute</label>
+              <input class="form-input" id="ldap-emailattr" placeholder="mail">
+            </div>
+          </div>
+          <div class="toggle-row">
+            <div><div class="toggle-label">Verify TLS Certificate</div>
+              <div class="toggle-desc">Disable only for self-signed certs in dev</div></div>
+            <label class="toggle"><input type="checkbox" id="ldap-tls" checked><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+
+        <div id="ldap-test-result" style="margin-top:10px;display:none;padding:10px;border-radius:var(--radius);font-size:12px;font-family:var(--font-mono)"></div>
+      </div>
+
+      <div class="card" style="max-width:600px;" id="ldap-search-card">
+        <div class="card-title">LDAP User Search</div>
+        <div class="form-row">
+          <div class="form-group">
+            <input class="form-input" id="ldap-search-q" placeholder="Search users by name or email...">
+          </div>
+          <button class="btn btn-primary" onclick="searchLDAPUsers()">Search</button>
+        </div>
+        <div id="ldap-search-results" style="margin-top:10px"></div>
+      </div>
+
+      <div class="card" style="max-width:600px;">
+        <div class="card-title">Test Login</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="form-group"><label class="form-label">Username</label><input class="form-input" id="ldap-test-user" placeholder="jdoe"></div>
+          <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="ldap-test-pass" type="password"></div>
+        </div>
+        <button class="btn btn-primary" onclick="testLDAPLogin()">Test Login</button>
+        <div id="ldap-login-result" style="margin-top:8px;font-size:12px;font-family:var(--font-mono)"></div>
+      </div>
+    </div>
+
+    <!-- SECURITY -->
+    <div class="page" id="page-security">
+      <h2 style="font-size:18px;margin-bottom:16px;">Security</h2>
+      <div class="card" style="max-width:500px;">
+        <div class="card-title">Room Password</div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:12px;">Users must enter this password to join any session.</p>
+        <div class="form-row">
+          <div class="form-group"><input class="form-input" id="room-pw" type="password" placeholder="Leave empty to disable"></div>
+          <button class="btn btn-primary" onclick="setRoomPw()">Set</button>
+        </div>
+      </div>
+      <div class="card" style="max-width:500px;">
+        <div class="card-title">Reset User Password</div>
+        <div class="form-group"><label class="form-label">Username</label><input class="form-input" id="reset-user" placeholder="username"></div>
+        <div class="form-group"><label class="form-label">New Password</label><input class="form-input" id="reset-pw" type="password" placeholder="New password"></div>
+        <button class="btn btn-primary" onclick="resetPw()">Reset Password</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+</div>
+
+<script>
+let token = localStorage.getItem('codev_admin_token') || '';
+
+async function api(method, path, body) {
+  const r = await fetch('/api/admin' + path, {
+    method, headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  return r.json();
+}
+
+async function doLogin() {
+  const username = document.getElementById('login-user').value.trim();
+  const password = document.getElementById('login-pass').value;
+  const r = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
+  const d = await r.json();
+  if (!d.ok) { document.getElementById('login-error').textContent = d.error; document.getElementById('login-error').style.display = ''; return; }
+  if (d.user.role !== 'admin') { document.getElementById('login-error').textContent = 'Admin access required'; document.getElementById('login-error').style.display = ''; return; }
+  token = d.token;
+  localStorage.setItem('codev_admin_token', token);
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('admin-app').style.display = '';
+  loadOverview();
+}
+
+document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+function doLogout() { localStorage.removeItem('codev_admin_token'); location.reload(); }
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+  if (name === 'overview') loadOverview();
+  if (name === 'users')    loadUsers();
+  if (name === 'sessions') loadSessions();
+  if (name === 'settings') loadSettings();
+}
+
+async function loadOverview() {
+  const d = await api('GET', '/stats');
+  if (!d.ok) return;
+  document.getElementById('s-users').textContent    = d.users;
+  document.getElementById('s-sessions').textContent = d.sessions || '—';
+  document.getElementById('s-uptime').textContent   = d.uptimeHuman;
+  document.getElementById('s-node').textContent     = d.nodeVersion;
+  document.getElementById('header-uptime').textContent = 'up ' + d.uptimeHuman;
+  document.getElementById('header-server-name').textContent = d.mode === 'server' ? 'Enterprise Server' : 'P2P Host';
+  document.getElementById('mem-used').textContent   = d.memory.used + ' MB used';
+  document.getElementById('mem-total').textContent  = d.memory.total + ' MB total';
+  const pct = Math.round(d.memory.used / d.memory.total * 100);
+  const bar = document.getElementById('mem-bar');
+  bar.style.width = pct + '%';
+  bar.className = 'metric-fill' + (pct > 85 ? ' danger' : pct > 65 ? ' warn' : '');
+  document.getElementById('sys-info').innerHTML =
+    `Platform: ${d.system.platform} ${d.system.arch}<br>` +
+    `Host: ${d.system.hostname}<br>` +
+    `RAM: ${d.system.freemem} MB free / ${d.system.totalmem} MB`;
+  document.getElementById('cpu-info').textContent =
+    `${d.cpu.model} (${d.cpu.cores} cores)  |  Load: ${d.cpu.load.map(l => l.toFixed(2)).join(' / ')}`;
+}
+
+async function loadUsers() {
+  const d = await api('GET', '/users');
+  if (!d.ok) return;
+  const tbody = document.getElementById('users-tbody');
+  tbody.innerHTML = d.users.map(u => `
+    <tr>
+      <td style="font-family:var(--font-mono);font-size:12px">${esc(u.username)}</td>
+      <td>${esc(u.displayName)}</td>
+      <td><span class="badge badge-${u.role}">${u.role}</span></td>
+      <td style="font-size:11px;color:var(--text2)">${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}</td>
+      <td style="display:flex;gap:4px">
+        <button class="btn btn-sm" onclick="toggleRole('${esc(u.username)}','${u.role}')">${u.role === 'admin' ? '→ Member' : '→ Admin'}</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteUser('${esc(u.username)}')">Delete</button>
+      </td>
+    </tr>`).join('') || '<tr><td colspan="5" style="color:var(--text2)">No users</td></tr>';
+}
+
+async function toggleRole(username, current) {
+  const newRole = current === 'admin' ? 'member' : 'admin';
+  const d = await api('POST', `/users/${username}/role`, { role: newRole });
+  if (d.ok) { toast('Role updated', 'success'); loadUsers(); }
+  else toast(d.error, 'error');
+}
+
+async function deleteUser(username) {
+  if (!confirm(`Delete user "${username}"?`)) return;
+  const d = await api('DELETE', `/users/${username}`);
+  if (d.ok) { toast('User deleted', 'success'); loadUsers(); }
+  else toast(d.error, 'error');
+}
+
+async function addUser() {
+  const username    = document.getElementById('new-username').value.trim();
+  const displayName = document.getElementById('new-displayname').value.trim();
+  const password    = document.getElementById('new-password').value;
+  const role        = document.getElementById('new-role').value;
+  if (!username || !password) { toast('Fill all fields', 'error'); return; }
+  const r = await fetch('/api/auth/register', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+    body: JSON.stringify({ username, displayName: displayName || username, password })
+  });
+  const d = await r.json();
+  if (!d.ok) { toast(d.error, 'error'); return; }
+  if (role === 'admin') await api('POST', `/users/${username}/role`, { role: 'admin' });
+  toast('User created', 'success');
+  ['new-username','new-displayname','new-password'].forEach(id => document.getElementById(id).value = '');
+  showPage('users');
+}
+
+async function loadSessions() {
+  const d = await api('GET', '/sessions');
+  const list = document.getElementById('sessions-list');
+  if (!d.ok || !d.sessions.length) {
+    list.innerHTML = '<div style="color:var(--text2);font-size:13px;padding:10px">No active sessions</div>';
+    return;
+  }
+  list.innerHTML = d.sessions.map(s => `
+    <div class="session-item">
+      <div class="session-dot"></div>
+      <div class="session-info">
+        <div class="session-name">${esc(s.name || 'Guest')}</div>
+        <div class="session-meta">${esc(s.id)} · ${esc(s.activeFile || 'no file')}</div>
+      </div>
+      <button class="btn btn-sm btn-danger" onclick="kickUser('${esc(s.id)}')">Kick</button>
+    </div>`).join('');
+}
+
+async function kickUser(id) {
+  const d = await api('POST', `/kick/${id}`);
+  toast(d.ok ? 'User disconnected' : d.error, d.ok ? 'success' : 'error');
+  setTimeout(loadSessions, 500);
+}
+
+async function loadSettings() {
+  const d = await api('GET', '/config');
+  if (!d.ok) return;
+  document.getElementById('cfg-name').value = d.config.serverName || '';
+  document.getElementById('cfg-guest').checked = d.config.allowGuestAccess || false;
+  document.getElementById('cfg-auth').checked  = d.config.authEnabled || false;
+}
+
+async function saveSettings() {
+  const d = await api('POST', '/config', {
+    serverName:        document.getElementById('cfg-name').value,
+    allowGuestAccess:  document.getElementById('cfg-guest').checked,
+    authEnabled:       document.getElementById('cfg-auth').checked,
+  });
+  toast(d.ok ? 'Settings saved' : d.error, d.ok ? 'success' : 'error');
+}
+
+async function setRoomPw() {
+  const pw = document.getElementById('room-pw').value;
+  const d  = await api('POST', '/config/room-password', { password: pw });
+  toast(d.ok ? (pw ? 'Password set' : 'Password removed') : d.error, d.ok ? 'success' : 'error');
+}
+
+async function resetPw() {
+  const username = document.getElementById('reset-user').value.trim();
+  const pw       = document.getElementById('reset-pw').value;
+  if (!username || !pw) { toast('Fill all fields', 'error'); return; }
+  const d = await api('POST', `/users/${username}/reset-password`, { newPassword: pw });
+  toast(d.ok ? 'Password reset' : d.error, d.ok ? 'success' : 'error');
+}
+
+function toast(msg, type = 'success') {
+  const box = document.getElementById('toast');
+  const el  = document.createElement('div');
+  el.className = `toast-msg ${type}`; el.textContent = msg;
+  box.appendChild(el); setTimeout(() => el.remove(), 3000);
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// Auto-check login
+if (token) {
+  fetch('/api/admin/stats', { headers: { 'Authorization': 'Bearer ' + token } })
+    .then(r => r.json()).then(d => {
+      if (d.ok) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('admin-app').style.display = '';
+        loadOverview();
+      }
+    }).catch(() => {});
+}
+
+// Auto-refresh
+setInterval(() => {
+  if (document.getElementById('page-overview').classList.contains('active')) loadOverview();
+  if (document.getElementById('page-sessions').classList.contains('active')) loadSessions();
+}, 10000);
+
+// LDAP functions
+const LDAP_PRESETS = {
+  ad:       { userFilter:'(sAMAccountName={{username}})', displayNameAttr:'displayName', emailAttr:'mail' },
+  openldap: { userFilter:'(uid={{username}})', displayNameAttr:'cn', emailAttr:'mail' },
+  freeipa:  { userFilter:'(uid={{username}})', displayNameAttr:'displayName', emailAttr:'mail' },
+  samba:    { userFilter:'(sAMAccountName={{username}})', displayNameAttr:'displayName', emailAttr:'mail' },
+};
+
+async function loadLDAPConfig() {
+  const d = await fetch('/api/ldap/config', { headers:{'Authorization':'Bearer '+token} }).then(r=>r.json());
+  if (!d.ok) return;
+  const c = d.config;
+  document.getElementById('ldap-enabled').checked       = c.enabled || false;
+  document.getElementById('ldap-url').value             = c.url || '';
+  document.getElementById('ldap-basedn').value          = c.baseDN || '';
+  document.getElementById('ldap-binddn').value          = c.bindDN || '';
+  document.getElementById('ldap-filter').value          = c.userFilter || '';
+  document.getElementById('ldap-groupfilter').value     = c.groupFilter || '';
+  document.getElementById('ldap-admingroup').value      = c.adminGroup || '';
+  document.getElementById('ldap-displayattr').value     = c.displayNameAttr || 'displayName';
+  document.getElementById('ldap-emailattr').value       = c.emailAttr || 'mail';
+  document.getElementById('ldap-tls').checked           = c.tlsVerify !== false;
+  toggleLDAPFields();
+}
+
+function toggleLDAPFields() {
+  const en = document.getElementById('ldap-enabled').checked;
+  document.getElementById('ldap-fields').style.display = en ? '' : 'none';
+}
+
+function applyPreset(name) {
+  const p = LDAP_PRESETS[name]; if (!p) return;
+  if (p.userFilter)    document.getElementById('ldap-filter').value      = p.userFilter;
+  if (p.displayNameAttr) document.getElementById('ldap-displayattr').value = p.displayNameAttr;
+  if (p.emailAttr)     document.getElementById('ldap-emailattr').value   = p.emailAttr;
+  toast('Preset applied: ' + name, 'success');
+}
+
+async function saveLDAP() {
+  const cfg = {
+    enabled:         document.getElementById('ldap-enabled').checked,
+    url:             document.getElementById('ldap-url').value.trim(),
+    baseDN:          document.getElementById('ldap-basedn').value.trim(),
+    bindDN:          document.getElementById('ldap-binddn').value.trim(),
+    bindPassword:    document.getElementById('ldap-bindpw').value,
+    userFilter:      document.getElementById('ldap-filter').value.trim(),
+    groupFilter:     document.getElementById('ldap-groupfilter').value.trim(),
+    adminGroup:      document.getElementById('ldap-admingroup').value.trim(),
+    displayNameAttr: document.getElementById('ldap-displayattr').value.trim(),
+    emailAttr:       document.getElementById('ldap-emailattr').value.trim(),
+    tlsVerify:       document.getElementById('ldap-tls').checked,
+  };
+  const r = await fetch('/api/ldap/config', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body: JSON.stringify(cfg) });
+  const d = await r.json();
+  toast(d.ok ? 'LDAP config saved' : d.error, d.ok ? 'success' : 'error');
+}
+
+async function testLDAP() {
+  const el = document.getElementById('ldap-test-result');
+  el.style.display = ''; el.textContent = 'Testing...'; el.style.background = 'var(--bg3)';
+  const r = await fetch('/api/ldap/test', { method:'POST', headers:{'Authorization':'Bearer '+token} });
+  const d = await r.json();
+  el.textContent = d.ok ? '✓ ' + d.message : '✗ ' + d.error;
+  el.style.background = d.ok ? 'rgba(74,222,128,.1)' : 'rgba(248,113,113,.1)';
+  el.style.color = d.ok ? 'var(--green)' : 'var(--red)';
+}
+
+async function searchLDAPUsers() {
+  const q = document.getElementById('ldap-search-q').value.trim();
+  if (!q) return;
+  const r = await fetch('/api/ldap/search', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body: JSON.stringify({query:q}) });
+  const d = await r.json();
+  const el = document.getElementById('ldap-search-results');
+  if (!d.ok) { el.innerHTML = '<div style="color:var(--red);font-size:12px">'+esc(d.error)+'</div>'; return; }
+  if (!d.users.length) { el.innerHTML = '<div style="color:var(--text2);font-size:12px">No users found</div>'; return; }
+  el.innerHTML = '<table style="width:100%;font-size:12px"><thead><tr><th>Username</th><th>Display Name</th><th>Email</th><th>Groups</th></tr></thead><tbody>' +
+    d.users.map(u => `<tr><td style="font-family:var(--font-mono)">${esc(u.username)}</td><td>${esc(u.displayName)}</td><td>${esc(u.email)}</td><td>${u.groups}</td></tr>`).join('') +
+    '</tbody></table>';
+}
+
+async function testLDAPLogin() {
+  const username = document.getElementById('ldap-test-user').value.trim();
+  const password = document.getElementById('ldap-test-pass').value;
+  const el = document.getElementById('ldap-login-result');
+  if (!username || !password) { el.textContent = 'Enter username and password'; return; }
+  el.textContent = 'Testing...';
+  const r = await fetch('/api/ldap/verify', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body: JSON.stringify({username,password}) });
+  const d = await r.json();
+  if (d.ok) {
+    el.style.color = 'var(--green)';
+    el.textContent = '✓ Login OK — ' + d.user.displayName + (d.user.isAdmin ? ' [ADMIN]' : ' [member]') + ' | ' + (d.user.email || 'no email');
+  } else {
+    el.style.color = 'var(--red)';
+    el.textContent = '✗ ' + d.error;
+  }
+}
+
+// showPage override for LDAP
+const _origShowPage = showPage;
+// Extend showPage to load LDAP config
+const origShowPage = showPage;
+window.showPage = function(name) {
+  origShowPage(name);
+  if (name === 'ldap') loadLDAPConfig();
+};
+
+</script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+{
+  "name": "codev",
+  "version": "2.0.0",
+  "description": "Collaborative Code Editor",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "server": "node server/index.js --mode server",
+    "client": "node server/index.js --mode client",
+    "electron": "electron .",
+    "electron:build": "electron-builder",
+    "docker:build": "docker build -t codev .",
+    "docker:run": "docker-compose up"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "ws": "^8.16.0",
+    "uuid": "^9.0.0",
+    "simple-git": "^3.22.0",
+    "chokidar": "^3.6.0",
+    "mime-types": "^2.1.35",
+    "prettier": "^3.2.5",
+    "glob": "^10.3.10",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "electron": "^29.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.codev.editor",
+    "productName": "CodeV",
+    "icon": "electron/icon",
+    "files": [
+      "server/**/*",
+      "client/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "extraResources": [],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "electron/icon.ico"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "electron/icon.icns",
+      "category": "public.app-category.developer-tools"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "electron/icon.png",
+      "category": "Development"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "electron/icon.ico",
+      "uninstallerIcon": "electron/icon.ico"
+    }
+  },
+  "optionalDependencies": {
+    "ldapts": "^4.2.6"
+  }
+}
