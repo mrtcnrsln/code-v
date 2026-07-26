@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doğum Günü Davetiyesi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            background: {{BG}};
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .scene {
+            position: relative;
+            width: 100%;
+            height: 60%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Cake SVG */
+        svg.cake {
+            max-width: 90%;
+            max-height: 100%;
+            width: 320px;
+            height: auto;
+            filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.15));
+            animation: cakeAppear 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes cakeAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.6) translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        /* Candle flames */
+        .flame {
+            opacity: 0;
+            animation: flickerIn 0.6s ease-out forwards;
+        }
+
+        .flame:nth-child(1) {
+            animation-delay: 1s;
+        }
+
+        .flame:nth-child(2) {
+            animation-delay: 1.15s;
+        }
+
+        .flame:nth-child(3) {
+            animation-delay: 1.3s;
+        }
+
+        .flame:nth-child(4) {
+            animation-delay: 1.45s;
+        }
+
+        .flame:nth-child(5) {
+            animation-delay: 1.6s;
+        }
+
+        @keyframes flickerIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Organic flame flicker */
+        @keyframes organicFlicker {
+            0% {
+                transform: translateY(0) scaleY(1) scaleX(0.95);
+            }
+            15% {
+                transform: translateY(-2px) scaleY(1.15) scaleX(0.88);
+            }
+            25% {
+                transform: translateY(-1px) scaleY(0.98) scaleX(1.02);
+            }
+            35% {
+                transform: translateY(-3px) scaleY(1.08) scaleX(0.92);
+            }
+            50% {
+                transform: translateY(-1.5px) scaleY(1.02) scaleX(0.98);
+            }
+            65% {
+                transform: translateY(-2.5px) scaleY(1.12) scaleX(0.85);
+            }
+            75% {
+                transform: translateY(-0.5px) scaleY(0.95) scaleX(1.05);
+            }
+            85% {
+                transform: translateY(-2px) scaleY(1.1) scaleX(0.90);
+            }
+            100% {
+                transform: translateY(0) scaleY(1) scaleX(0.95);
+            }
+        }
+
+        .flame-inner {
+            transform-origin: bottom center;
+            animation: organicFlicker 2.4s ease-in-out infinite;
+        }
+
+        .flame:nth-child(1) .flame-inner {
+            animation-delay: 0s;
+        }
+
+        .flame:nth-child(2) .flame-inner {
+            animation-delay: 0.3s;
+        }
+
+        .flame:nth-child(3) .flame-inner {
+            animation-delay: 0.6s;
+        }
+
+        .flame:nth-child(4) .flame-inner {
+            animation-delay: 0.9s;
+        }
+
+        .flame:nth-child(5) .flame-inner {
+            animation-delay: 1.2s;
+        }
+
+        /* Glow around flame */
+        @keyframes glowPulse {
+            0%, 100% {
+                r: 22;
+                opacity: 0.4;
+            }
+            50% {
+                r: 28;
+                opacity: 0.2;
+            }
+        }
+
+        .flame-glow {
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+
+        .flame:nth-child(1) .flame-glow {
+            animation-delay: 0s;
+        }
+
+        .flame:nth-child(2) .flame-glow {
+            animation-delay: 0.3s;
+        }
+
+        .flame:nth-child(3) .flame-glow {
+            animation-delay: 0.6s;
+        }
+
+        .flame:nth-child(4) .flame-glow {
+            animation-delay: 0.9s;
+        }
+
+        .flame:nth-child(5) .flame-glow {
+            animation-delay: 1.2s;
+        }
+
+        /* Blow out effect */
+        @keyframes blowOut {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scaleY(1);
+            }
+            70% {
+                opacity: 0.3;
+                transform: translateY(-2px) scaleY(0.5);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-20px) scaleY(0);
+            }
+        }
+
+        .flame.blown {
+            animation: blowOut 0.6s ease-in forwards !important;
+        }
+
+        /* Smoke */
+        @keyframes smokeRise {
+            0% {
+                opacity: 0;
+                transform: translateY(0) scale(0.3);
+            }
+            20% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-80px) scale(1);
+            }
+        }
+
+        .smoke {
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .smoke-puff {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle, rgba(150, 150, 150, 0.6) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: smokeRise 2s ease-out forwards;
+        }
+
+        /* Confetti */
+        @keyframes confettiFall {
+            to {
+                transform: translateY(100vh) rotateZ(720deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes confettiSpin {
+            to {
+                transform: rotateX(720deg) rotateY(720deg) rotateZ(720deg);
+            }
+        }
+
+        .confetti-piece {
+            position: fixed;
+            pointer-events: none;
+            animation: confettiFall linear forwards;
+        }
+
+        /* Text elements */
+        .text-section {
+            text-align: center;
+            opacity: 0;
+            animation: textFadeIn 0.8s ease-out forwards;
+            animation-delay: 4.5s;
+            color: #fff;
+            z-index: 10;
+        }
+
+        @keyframes textFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .text-section h1 {
+            font-size: clamp(28px, 8vw, 48px);
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            color: {{ACCENT}};
+        }
+
+        .text-section p {
+            font-size: clamp(16px, 4vw, 24px);
+            font-weight: 300;
+            letter-spacing: 1px;
+            opacity: 0.95;
+        }
+
+        /* Subdomain label */
+        .subdomain {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            letter-spacing: 4px;
+            color: #fff;
+            opacity: 0.45;
+            z-index: 5;
+            text-transform: lowercase;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            svg.cake {
+                width: 280px;
+            }
+
+            .text-section h1 {
+                font-size: clamp(24px, 7vw, 36px);
+            }
+
+            .text-section p {
+                font-size: clamp(14px, 3.5vw, 20px);
+            }
+        }
+
+        @media (max-height: 600px) {
+            .scene {
+                height: 50%;
+            }
+
+            svg.cake {
+                width: 240px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="scene" id="scene">
+            <svg class="cake" viewBox="0 0 300 380" xmlns="http://www.w3.org/2000/svg">
+                <!-- Cake base -->
+                <defs>
+                    <linearGradient id="cakeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#f4d4a8;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#e8b894;stop-opacity:1" />
+                    </linearGradient>
+                    <linearGradient id="frostingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#ff6b9d;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#c2185b;stop-opacity:1" />
+                    </linearGradient>
+                    <filter id="flameShadow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
+                    </filter>
+                </defs>
+
+                <!-- Cake layers -->
+                <ellipse cx="150" cy="280" rx="110" ry="35" fill="#e8b894" opacity="0.7"/>
+                <rect x="40" y="180" width="220" height="100" rx="8" fill="url(#cakeGradient)"/>
+                <ellipse cx="150" cy="180" rx="110" ry="35" fill="#f4d4a8"/>
+
+                <!-- Frosting swirls -->
+                <path d="M 70 160 Q 80 140, 90 150 T 110 145" stroke="#ff6b9d" stroke-width="3" fill="none" opacity="0.6"/>
+                <path d="M 190 160 Q 200 140, 210 150 T 230 145" stroke="#ff6b9d" stroke-width="3" fill="none" opacity="0.6"/>
+                <path d="M 130 170 Q 150 150, 170 170" stroke="#ff6b9d" stroke-width="3" fill="none" opacity="0.6"/>
+
+                <!-- Top layer -->
+                <rect x="60" y="100" width="180" height="85" rx="6" fill="url(#frostingGradient)"/>
+                <ellipse cx="150" cy="100" rx="90" ry="30" fill="#ff6b9d"/>
+
+                <!-- Decorative dots on frosting -->
+                <circle cx="100" cy="140" r="4" fill="#fff" opacity="0.5"/>
+                <circle cx="200" cy="130" r="4" fill="#fff" opacity="0.5"/>
+                <circle cx="150" cy="125" r="4" fill="#fff" opacity="0.5"/>
+                <circle cx="120" cy="155" r="4" fill="#fff" opacity="0.5"/>
+                <circle cx="180" cy="160" r="4" fill="#fff" opacity="0.5"/>
+
+                <!-- Candles -->
+                <g id="candle1" class="candle">
+                    <rect x="110" y="65" width="6" height="30" fill="#ffd700"/>
+                    <rect x="110" y="62" width="6" height="4" fill="#fff8dc"/>
+                </g>
+                <g id="candle2" class="candle">
+                    <rect x="138" y="65" width="6" height="30" fill="#ffd700"/>
+                    <rect x="138" y="62" width="6" height="4" fill="#fff8dc"/>
+                </g>
+                <g id="candle3" class="candle">
+                    <rect x="147" y="60" width="6" height="35" fill="#ffd700"/>
+                    <rect x="147" y="57" width="6" height="4" fill="#fff8dc"/>
+                </g>
+                <g id="candle4" class="candle">
+                    <rect x="156" y="65" width="6" height="30" fill="#ffd700"/>
+                    <rect x="156" y="62" width="6" height="4" fill="#fff8dc"/>
+                </g>
+                <g id="candle5" class="candle">
+                    <rect x="184" y="65" width="6" height="30" fill="#ffd700"/>
+                    <rect x="184" y="62" width="6" height="4" fill="#fff8dc"/>
+                </g>
+
+                <!-- Flames -->
+                <g class="flame" id="flame1" data-candle="1">
+                    <circle cx="113" cy="55" r="22" class="flame-glow" fill="{{ACCENT}}" opacity="0.3"/>
+                    <g class="flame-inner">
+                        <path d="M 113 65 Q 108 55 110 40 Q 113 50 113 50 Q 113 50 116 40 Q 118 55 113 65" fill="#ff8c00" opacity="0.8" filter="url(#flameShadow)"/>
+                        <path d="M 113 62 Q 110 55 111 45 Q 113 52 113 52 Q 113 52 115 45 Q 116 55 113 62" fill="#ffa500" opacity="0.7"/>
+                        <path d="M 113 60 Q 111 54 112 48 Q 113 53 113 53 Q 113 53 114 48 Q 115 54 113 60" fill="{{ACCENT}}" opacity="0.9"/>
+                    </g>
+                </g>
+
+                <g class="flame" id="flame2" data-candle="2">
+                    <circle cx="141" cy="55" r="22" class="flame-glow" fill="{{ACCENT}}" opacity="0.3"/>
+                    <g class="flame-inner">
+                        <path d="M 141 65 Q 136 55 138 40 Q 141 50 141 50 Q 141 50 144 40 Q 146 55 141 65" fill="#ff8c00" opacity="0.8" filter="url(#flameShadow)"/>
+                        <path d="M 141 62 Q 138 55 139 45 Q 141 52 141 52 Q 141 52 143 45 Q 144 55 141 62" fill="#ffa500" opacity="0.7"/>
+                        <path d="M 141 60 Q 139 54 140 48 Q 141 53 141 53 Q 141 53 142 48 Q 143 54 141 60" fill="{{ACCENT}}" opacity="0.9"/>
+                    </g>
+                </g>
+
+                <g class="flame" id="flame3" data-candle="3">
+                    <circle cx="150" cy="50" r="22" class="flame-glow" fill="{{ACCENT}}" opacity="0.3"/>
+                    <g class="flame-inner">
+                        <path d="M 150 62 Q 145 50 147 32 Q 150 48 150 48 Q 150 48 153 32 Q 155 50 150 62" fill="#ff8c00" opacity="0.8" filter="url(#flameShadow)"/>
+                        <path d="M 150 58 Q 147 50 148 40 Q 150 50 150 50 Q 150 50 152 40 Q 153 50 150 58" fill="#ffa500" opacity="0.7"/>
+                        <path d="M 150 56 Q 148 50 149 44 Q 150 52 150 52 Q 150 52 151 44 Q 152 50 150 56" fill="{{ACCENT}}" opacity="0.9"/>
+                    </g>
+                </g>
+
+                <g class="flame" id="flame4" data-candle="4">
+                    <circle cx="159" cy="55" r="22" class="flame-glow" fill="{{ACCENT}}" opacity="0.3"/>
+                    <g class="flame-inner">
+                        <path d="M 159 65 Q 154 55 156 40 Q 159 50 159 50 Q 159 50 162 40 Q 164 55 159 65" fill="#ff8c00" opacity="0.8" filter="url(#flameShadow)"/>
+                        <path d="M 159 62 Q 156 55 157 45 Q 159 52 159 52 Q 159 52 161 45 Q 162 55 159 62" fill="#ffa500" opacity="0.7"/>
+                        <path d="M 159 60 Q 157 54 158 48 Q 159 53 159 53 Q 159 53 160 48 Q 161 54 159 60" fill="{{ACCENT}}" opacity="0.9"/>
+                    </g>
+                </g>
+
+                <g class="flame" id="flame5" data-candle="5">
+                    <circle cx="187" cy="55" r="22" class="flame-glow" fill="{{ACCENT}}" opacity="0.3"/>
+                    <g class="flame-inner">
+                        <path d="M 187 65 Q 182 55 184 40 Q 187 50 187 50 Q 187 50 190 40 Q 192 55 187 65" fill="#ff8c00" opacity="0.8" filter="url(#flameShadow)"/>
+                        <path d="M 187 62 Q 184 55 185 45 Q 187 52 187 52 Q 187 52 189 45 Q 190 55 187 62" fill="#ffa500" opacity="0.7"/>
+                        <path d="M 187 60 Q 185 54 186 48 Q 187 53 187 53 Q 187 53 188 48 Q 189 54 187 60" fill="{{ACCENT}}" opacity="0.9"/>
+                    </g>
+                </g>
+            </svg>
+        </div>
+
+        <div class="text-section">
+            <h1>HAZIR MISIN?</h1>
+            <p>Seni bekliyoruz...</p>
+        </div>
+    </div>
+
+    <div class="subdomain" id="subdomain"></div>
+
+    <script>
+        // Configuration
+        const config = {
+            accent: '{{ACCENT}}',
+            bg: '{{BG}}',
+            subdomain: '{{SUBDOMAIN}}'
+        };
+
+        // Timeline constants
+        const FLAME_IN_START = 1000;
+        const BLOW_OUT_TIME = 3800;
+        const CONFETTI_START = 4400;
+        const TOTAL_DURATION = 5600;
+
+        // Initialize subdomain label
+        function initSubdomain() {
+            const label = document.getElementById('subdomain');
+            if (config.subdomain) {
+                label.textContent = config.subdomain;
+            }
+        }
+
+        // Blow out flames
+        function blowOutFlames() {
+            const flames = document.querySelectorAll('.flame');
+            flames.forEach((flame, index) => {
+                setTimeout(() => {
+                    flame.classList.add('blown');
+                    createSmoke(flame);
+                }, index * 50);
+            });
+        }
+
+        // Create smoke effect
+        function createSmoke(flameElement) {
+            const scene = document.getElementById('scene');
+            const svg = scene.querySelector('svg');
+            const rect = svg.getBoundingClientRect();
+            const sceneRect = scene.getBoundingClientRect();
+
+            // Get flame position from SVG
+            const flamePath = flameElement.querySelector('path:first-child');
+            if (!flamePath) return;
+            
+            const bbox = flamePath.getBBox();
+            const flameX = bbox.x + bbox.width / 2;
+            const flameY = bbox.y;
+
+            // Transform to viewport coordinates
+            const scaleX = sceneRect.width / svg.viewBox.baseVal.width;
+            const scaleY = sceneRect.height / svg.viewBox.baseVal.height;
+
+            const worldX = sceneRect.left + flameX * scaleX;
+            const worldY = sceneRect.top + flameY * scaleY;
+
+            // Create smoke puffs
+            for (let i = 0; i < 3; i++) {
+                const smoke = document.createElement('div');
+                smoke.className = 'smoke';
+                smoke.style.left = worldX + 'px';
+                smoke.style.top = worldY + 'px';
+
+                const puff = document.createElement('div');
+                puff.className = 'smoke-puff';
+                puff.style.animationDuration = (1.5 + Math.random() * 0.5) + 's';
+                puff.style.animationDelay = (i * 0.15) + 's';
+                const offsetX = (Math.random() - 0.5) * 20;
+                const offsetY = (Math.random() - 0.5) * 20;
+                puff.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+
+                smoke.appendChild(puff);
+                document.body.appendChild(smoke);
+
+                setTimeout(() => smoke.remove(), 2500);
+            }
+        }
+
+        // Create confetti burst
+        function createConfetti() {
+            const scene = document.getElementById('scene');
+            const svg = scene.querySelector('svg');
+            const sceneRect = scene.getBoundingClientRect();
+
+            const centerX = sceneRect.left + sceneRect.width / 2;
+            const centerY = sceneRect.top + sceneRect.height / 2;
+
+            const colors = ['#ff6b9d', '#ffa500', '#ffd700', '{{ACCENT}}', '#ff1493', '#ffb347'];
+            const pieceCount = 60;
+
+            for (let i = 0; i < pieceCount; i++) {
+                const angle = (Math.PI * 2 * i) / pieceCount + (Math.random() - 0.5) * 0.4;
+                const velocity = 4 + Math.random() * 6;
+                const distance = 40 + Math.random() * 100;
+
+                const vx = Math.cos(angle) * velocity;
+                const vy = Math.sin(angle) * velocity;
+
+                const startX = centerX + Math.cos(angle) * (distance * 0.2);
+                const startY = centerY + Math.sin(angle) * (distance * 0.2);
+
+                const endX = startX + vx * 80;
+                const endY = startY + vy * 80;
+
+                const duration = 2.5 + Math.random() * 0.8;
+
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.style.left = startX + 'px';
+                piece.style.top = startY + 'px';
+                piece.style.width = (4 + Math.random() * 8) + 'px';
+                piece.style.height = (4 + Math.random() * 8) + 'px';
+                piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                piece.style.borderRadius = (Math.random() > 0.5 ? '50%' : '0');
+
+                const keyframes = `
+                    @keyframes confetti${i} {
+                        0% {
+                            transform: translate(0, 0) rotate(0deg) scale(1);
+                            opacity: 1;
+                        }
+                        100% {
+                            transform: translate(${endX - startX}px, ${endY - startY + 200}px) rotate(${Math.random() * 720}deg) scale(0);
+                            opacity: 0;
+                        }
+                    }
+                `;
+
+                if (!document.getElementById('confetti-keyframes')) {
+                    const style = document.createElement('style');
+                    style.id = 'confetti-keyframes';
+                    document.head.appendChild(style);
+                }
+
+                document.getElementById('confetti-keyframes').sheet.insertRule(keyframes);
+                piece.style.animation = `confetti${i} ${duration}s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards`;
+
+                document.body.appendChild(piece);
+                setTimeout(() => piece.remove(), duration * 1000);
+            }
+        }
+
+        // Main animation sequence
+        function startAnimation() {
+            // Blow out at 3.8 seconds
+            setTimeout(blowOutFlames, BLOW_OUT_TIME);
+
+            // Confetti burst at 4.4 seconds
+            setTimeout(createConfetti, CONFETTI_START);
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            initSubdomain();
+            startAnimation();
+        });
+
+        // Start immediately if DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                initSubdomain();
+                startAnimation();
+            });
+        } else {
+            initSubdomain();
+            startAnimation();
+        }
+    </script>
+</body>
+</html>
